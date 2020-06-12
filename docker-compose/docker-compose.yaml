@@ -1,0 +1,154 @@
+version: '3.7'
+
+services:
+  jupyter1:
+    image: xarhsasi/jupyter-notebook-kit:1.1
+    hostname: jupyter1
+    volumes:
+      - /mnt/volume1:/root/notebooks
+    ports:
+      - "9000:8888"
+    networks:
+      - jupyter_distributed
+    secrets: 
+      - secret_key
+      - access_key
+    deploy:
+      replicas: 2
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 200M
+      placement:
+        constraints:
+          - node.labels.jupyter1==true
+    command: jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.quit_button=False --NotebookApp.allow_origin='*'
+   
+  jupyter2:
+    image: xarhsasi/jupyter-notebook-kit:1.1
+    hostname: jupyter2
+    volumes:
+      - /mnt/volume1:/root/notebooks
+    ports:
+      - "9001:8888"
+    networks:
+      - jupyter_distributed
+    secrets: 
+      - secret_key
+      - access_key
+    deploy:
+      replicas: 2
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 200M
+      placement:
+        constraints:
+          - node.labels.jupyter2==true
+    command: jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.quit_button=False --NotebookApp.allow_origin='*'
+  
+  jupyter3:
+    image: xarhsasi/jupyter-notebook-kit:1.1
+    hostname: jupyter3
+    volumes:
+      - /mnt/volume1:/root/notebooks
+    ports:
+      - "9002:8888"
+    networks:
+      - jupyter_distributed
+    secrets: 
+      - secret_key
+      - access_key
+    deploy:
+      replicas: 2
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 500M
+        reservations:
+          cpus: '0.5'
+          memory: 200M
+      placement:
+        constraints:
+          - node.labels.jupyter3==true
+    command: jupyter notebook --no-browser --ip=0.0.0.0 --allow-root --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.quit_button=False --NotebookApp.allow_origin='*'
+  
+  portainer:
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - 9090:9000
+      - 8000:8000
+    deploy:
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 500M
+        reservations:
+          cpus: '0.25'
+          memory: 200M
+      placement:
+        constraints:
+          - node.labels.group==master
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+      
+  nginx-proxy:
+    image: nginx:1.17.9-alpine
+    hostname: nginx-proxy
+    deploy:
+      mode: replicated
+      restart_policy:
+        delay: 10s
+        max_attempts: 10
+        window: 60s
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.group==master
+    ports:
+       - "9443:443"
+    volumes:
+      - /home/user/jupyter-notebook-kit-docker-swarm/docker-compose/conf/nginx.conf:/etc/nginx/nginx.conf                                                                                          
+      - /home/user/jupyter-notebook-kit-docker-swarm/docker-compose/conf/jupyter-notebook.conf:/etc/nginx/sites-enabled/default
+      - /home/user/jupyter-notebook-kit-docker-swarm/docker-compose/conf/public.crt:/etc/nginx/public.crt
+      - /home/user/jupyter-notebook-kit-docker-swarm/docker-compose/conf/private.key:/etc/nginx/private.key
+    networks:
+      - jupyter_distributed
+
+
+volumes:
+  portainer_data:
+
+networks:
+  jupyter_distributed:
+    driver: overlay
+
+secrets:
+  secret_key:
+    external: true
+  access_key:
+    external: true

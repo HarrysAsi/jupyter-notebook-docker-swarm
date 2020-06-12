@@ -1,0 +1,2 @@
+#As volume you should use the name of the glusterfs volume
+docker run -d -p 8888:8888 -v /mnt/volume1/:/root/notebooks/ xarhsasi/jupyter-notebook-kit:1.0

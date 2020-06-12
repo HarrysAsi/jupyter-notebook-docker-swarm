@@ -1,0 +1,2 @@
+ip_address=`/sbin/ifconfig eth1 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
+docker swarm init --advertise-addr $ip_address
