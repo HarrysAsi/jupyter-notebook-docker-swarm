@@ -4,6 +4,8 @@
 <h3> Μηχανικών Πληροφορικής και Υπολογιστών </h3>
 <h3> Υπολογιστική Νέφους και Υπηρεσίες </h3>
 
+<h4> [Docker Hub Image](https://hub.docker.com/repository/docker/xarhsasi/jupyter-notebook-kit) </h4>
+
 **_Ομάδα :_**
 
 * Χαράλαμπος Ασημακόπουλος, cs141098
